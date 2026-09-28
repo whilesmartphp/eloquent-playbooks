@@ -46,7 +46,7 @@ abstract class TestCase extends BaseTestCase
             'owner_id' => 1,
             'subject_type' => Support\Product::class,
             'subject_id' => 1,
-            'kind' => 'persona',
+            'type' => 'persona',
             'title' => 'Head of DevEx',
             'metadata' => ['role' => 'Head of Developer Experience', 'pains' => ['tooling sprawl'], 'shoe_size' => 44],
         ];

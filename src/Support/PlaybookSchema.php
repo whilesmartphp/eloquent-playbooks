@@ -2,7 +2,7 @@
 
 namespace Whilesmart\Playbooks\Support;
 
-/** The kinds a playbook holds and each kind's fields, read from config. */
+/** The types a playbook holds and each type's fields, read from config. */
 class PlaybookSchema
 {
     /**
@@ -10,7 +10,7 @@ class PlaybookSchema
      */
     public function single(): array
     {
-        return array_values((array) config('playbooks.kinds.single', []));
+        return array_values((array) config('playbooks.types.single', []));
     }
 
     /**
@@ -18,44 +18,44 @@ class PlaybookSchema
      */
     public function many(): array
     {
-        return array_values((array) config('playbooks.kinds.many', []));
+        return array_values((array) config('playbooks.types.many', []));
     }
 
     /**
      * @return array<int, string>
      */
-    public function kinds(): array
+    public function types(): array
     {
         return [...$this->single(), ...$this->many()];
     }
 
-    public function isKind(string $kind): bool
+    public function isType(string $type): bool
     {
-        return in_array($kind, $this->kinds(), true);
+        return in_array($type, $this->types(), true);
     }
 
-    public function isSingle(string $kind): bool
+    public function isSingle(string $type): bool
     {
-        return in_array($kind, $this->single(), true);
+        return in_array($type, $this->single(), true);
     }
 
     /**
      * @return array<int, string>
      */
-    public function fields(string $kind): array
+    public function fields(string $type): array
     {
-        return array_values((array) config("playbooks.fields.{$kind}", []));
+        return array_values((array) config("playbooks.fields.{$type}", []));
     }
 
     /**
-     * Keep only the fields this kind recognises.
+     * Keep only the fields this type recognises.
      *
      * @param  array<string, mixed>  $metadata
      * @return array<string, mixed>
      */
-    public function filter(string $kind, array $metadata): array
+    public function filter(string $type, array $metadata): array
     {
-        return array_intersect_key($metadata, array_flip($this->fields($kind)));
+        return array_intersect_key($metadata, array_flip($this->fields($type)));
     }
 
     /**

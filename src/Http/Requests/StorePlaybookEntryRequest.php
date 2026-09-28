@@ -25,7 +25,7 @@ class StorePlaybookEntryRequest extends FormRequest
             'owner_id' => ['required'],
             'subject_type' => ['nullable', 'string', 'required_with:subject_id'],
             'subject_id' => ['nullable', 'required_with:subject_type'],
-            'kind' => ['required', 'string', Rule::in($schema->kinds())],
+            'type' => ['required', 'string', Rule::in($schema->types())],
             'title' => ['required', 'string', 'max:255'],
             'body' => ['nullable', 'string'],
             'metadata' => ['nullable', 'array'],

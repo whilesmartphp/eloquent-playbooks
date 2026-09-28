@@ -45,13 +45,13 @@ return [
 
     'controller' => PlaybookEntryController::class,
 
-    // Kinds a subject holds at most one confirmed entry of, and kinds it holds many of.
-    'kinds' => [
+    // Types a subject holds at most one confirmed entry of, and types it holds many of.
+    'types' => [
         'single' => ['icp', 'offer', 'positioning', 'qualification'],
         'many' => ['persona', 'competitor', 'objection'],
     ],
 
-    // The structured metadata fields each kind keeps. Anything else is dropped on save.
+    // The structured metadata fields each type keeps. Anything else is dropped on save.
     'fields' => [
         'icp' => ['industry', 'size_band', 'revenue_band', 'geography', 'technographics', 'trigger_signals', 'disqualifiers'],
         'persona' => ['role', 'seniority', 'department', 'goals', 'kpis', 'pains', 'triggers', 'objections', 'watering_holes', 'comms_preference'],

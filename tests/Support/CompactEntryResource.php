@@ -8,6 +8,6 @@ class CompactEntryResource extends JsonResource
 {
     public function toArray($request): array
     {
-        return ['ref' => 'pb-'.$this->id, 'kind' => $this->kind];
+        return ['ref' => 'pb-'.$this->id, 'type' => $this->type];
     }
 }

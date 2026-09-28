@@ -49,7 +49,7 @@ class PlaybookEntryAuthorizationTest extends TestCase
     public function show_update_destroy_and_accept_are_forbidden_when_the_authorizer_denies(): void
     {
         $entry = PlaybookEntry::create([
-            'owner_type' => self::OWNER, 'owner_id' => 1, 'kind' => 'persona', 'status' => 'suggested', 'title' => 'Private',
+            'owner_type' => self::OWNER, 'owner_id' => 1, 'type' => 'persona', 'status' => 'suggested', 'title' => 'Private',
         ]);
 
         $this->getJson("/api/playbook-entries/{$entry->id}")->assertForbidden();
@@ -64,7 +64,7 @@ class PlaybookEntryAuthorizationTest extends TestCase
     #[Test]
     public function index_returns_nothing_when_the_scope_denies(): void
     {
-        PlaybookEntry::create(['owner_type' => self::OWNER, 'owner_id' => 1, 'kind' => 'persona', 'title' => 'Private']);
+        PlaybookEntry::create(['owner_type' => self::OWNER, 'owner_id' => 1, 'type' => 'persona', 'title' => 'Private']);
 
         $this->getJson('/api/playbook-entries')->assertOk()->assertJsonPath('data.meta.total', 0);
     }

@@ -21,7 +21,7 @@ class FakePlaybookEngine implements AgentEngine
             }
 
             $tool->handle([
-                'kind' => 'icp',
+                'type' => 'icp',
                 'title' => 'Mid-market SaaS',
                 'fields' => json_encode(['industry' => 'SaaS platforms', 'size_band' => '50-500']),
                 'source_url' => 'https://acme.example/product',
@@ -29,7 +29,7 @@ class FakePlaybookEngine implements AgentEngine
             ], $request->context);
 
             $tool->handle([
-                'kind' => 'persona',
+                'type' => 'persona',
                 'title' => 'Head of DevEx',
                 'fields' => json_encode(['role' => 'Head of Developer Experience', 'pains' => ['tooling sprawl']]),
                 'source_url' => 'https://acme.example/customers',

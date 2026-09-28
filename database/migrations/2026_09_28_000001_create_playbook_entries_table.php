@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('owner');
             $table->nullableMorphs('subject');
-            $table->string('kind', 40);
+            $table->string('type', 40);
             $table->string('status', 20)->default('confirmed');
             $table->string('title')->nullable();
             $table->text('body')->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['owner_type', 'owner_id', 'subject_type', 'subject_id', 'kind'], 'playbook_entries_scope_index');
+            $table->index(['owner_type', 'owner_id', 'subject_type', 'subject_id', 'type'], 'playbook_entries_scope_index');
             $table->index(['owner_type', 'owner_id', 'status'], 'playbook_entries_status_index');
         });
     }

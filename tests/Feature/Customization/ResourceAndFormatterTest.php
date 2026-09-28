@@ -21,6 +21,6 @@ class ResourceAndFormatterTest extends TestCase
     {
         $this->postJson('/api/playbook-entries', $this->entryPayload())
             ->assertCreated()
-            ->assertExactJson(['result' => ['ref' => 'pb-1', 'kind' => 'persona']]);
+            ->assertExactJson(['result' => ['ref' => 'pb-1', 'type' => 'persona']]);
     }
 }

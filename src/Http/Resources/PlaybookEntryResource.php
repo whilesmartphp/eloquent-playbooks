@@ -14,7 +14,7 @@ class PlaybookEntryResource extends JsonResource
             'owner_id' => $this->owner_id,
             'subject_type' => $this->subject_type,
             'subject_id' => $this->subject_id,
-            'kind' => $this->kind,
+            'type' => $this->type,
             'status' => $this->status?->value,
             'title' => $this->title,
             'body' => $this->body,

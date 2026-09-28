@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('owner');
             $table->nullableMorphs('subject');
-            $table->string('kind', 40);
+            $table->string('type', 40);
             $table->string('status', 20)->default('confirmed');
             $table->string('title')->nullable();
             $table->text('body')->nullable();

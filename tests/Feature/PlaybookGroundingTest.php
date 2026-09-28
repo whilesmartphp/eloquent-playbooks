@@ -29,9 +29,9 @@ class PlaybookGroundingTest extends TestCase
     {
         $product = Product::create(['name' => 'SourceAnt']);
         $base = ['owner_type' => self::OWNER, 'owner_id' => 1, 'subject_type' => Product::class, 'subject_id' => $product->id];
-        PlaybookEntry::create($base + ['kind' => 'persona', 'status' => 'confirmed', 'title' => 'Staff engineer', 'metadata' => ['pains' => ['review load']]]);
-        PlaybookEntry::create($base + ['kind' => 'icp', 'status' => 'confirmed', 'title' => 'Mid-market', 'metadata' => ['industry' => 'SaaS', '_confidence' => 90]]);
-        PlaybookEntry::create($base + ['kind' => 'offer', 'status' => 'suggested', 'title' => 'Unreviewed', 'metadata' => []]);
+        PlaybookEntry::create($base + ['type' => 'persona', 'status' => 'confirmed', 'title' => 'Staff engineer', 'metadata' => ['pains' => ['review load']]]);
+        PlaybookEntry::create($base + ['type' => 'icp', 'status' => 'confirmed', 'title' => 'Mid-market', 'metadata' => ['industry' => 'SaaS', '_confidence' => 90]]);
+        PlaybookEntry::create($base + ['type' => 'offer', 'status' => 'suggested', 'title' => 'Unreviewed', 'metadata' => []]);
 
         $prompt = $this->app->make(Playbook::class)->prompt($this->owner(), $product);
 
@@ -46,7 +46,7 @@ class PlaybookGroundingTest extends TestCase
     {
         $a = Product::create(['name' => 'SourceAnt']);
         $b = Product::create(['name' => 'Pagebeam']);
-        PlaybookEntry::create(['owner_type' => self::OWNER, 'owner_id' => 1, 'subject_type' => Product::class, 'subject_id' => $a->id, 'kind' => 'icp', 'status' => 'confirmed', 'title' => 'Dev teams']);
+        PlaybookEntry::create(['owner_type' => self::OWNER, 'owner_id' => 1, 'subject_type' => Product::class, 'subject_id' => $a->id, 'type' => 'icp', 'status' => 'confirmed', 'title' => 'Dev teams']);
 
         $prompt = $this->app->make(Playbook::class)->promptForSubjects($this->owner(), [$a, $b]);
 

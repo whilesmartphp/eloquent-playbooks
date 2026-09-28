@@ -14,7 +14,7 @@ use Whilesmart\Playbooks\Models\PlaybookEntry;
 class PlaybookEntryApiTest extends TestCase
 {
     #[Test]
-    public function it_creates_a_confirmed_entry_keeping_only_the_kind_s_fields(): void
+    public function it_creates_a_confirmed_entry_keeping_only_the_type_s_fields(): void
     {
         Event::fake([PlaybookEntrySaved::class]);
 
@@ -30,37 +30,37 @@ class PlaybookEntryApiTest extends TestCase
     }
 
     #[Test]
-    public function it_rejects_an_unknown_kind(): void
+    public function it_rejects_an_unknown_type(): void
     {
-        $this->postJson('/api/playbook-entries', $this->entryPayload(['kind' => 'horoscope']))
+        $this->postJson('/api/playbook-entries', $this->entryPayload(['type' => 'horoscope']))
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('kind');
+            ->assertJsonValidationErrors('type');
 
         $this->assertDatabaseCount('playbook_entries', 0);
     }
 
     #[Test]
-    public function a_single_kind_keeps_one_confirmed_entry_per_subject(): void
+    public function a_single_type_keeps_one_confirmed_entry_per_subject(): void
     {
-        $this->postJson('/api/playbook-entries', $this->entryPayload(['kind' => 'icp', 'title' => 'Old ICP', 'metadata' => ['industry' => 'Legacy']]))->assertCreated();
-        $this->postJson('/api/playbook-entries', $this->entryPayload(['kind' => 'icp', 'title' => 'New ICP', 'metadata' => ['industry' => 'SaaS']]))->assertCreated();
+        $this->postJson('/api/playbook-entries', $this->entryPayload(['type' => 'icp', 'title' => 'Old ICP', 'metadata' => ['industry' => 'Legacy']]))->assertCreated();
+        $this->postJson('/api/playbook-entries', $this->entryPayload(['type' => 'icp', 'title' => 'New ICP', 'metadata' => ['industry' => 'SaaS']]))->assertCreated();
 
-        $confirmed = PlaybookEntry::where('kind', 'icp')->confirmed()->get();
+        $confirmed = PlaybookEntry::where('type', 'icp')->confirmed()->get();
         $this->assertCount(1, $confirmed);
         $this->assertSame('New ICP', $confirmed->first()->title);
     }
 
     #[Test]
-    public function it_lists_entries_filtered_by_owner_subject_and_kind(): void
+    public function it_lists_entries_filtered_by_owner_subject_and_type(): void
     {
         $this->postJson('/api/playbook-entries', $this->entryPayload())->assertCreated();
-        $this->postJson('/api/playbook-entries', $this->entryPayload(['kind' => 'competitor', 'title' => 'Rival', 'metadata' => ['name' => 'Rival']]))->assertCreated();
+        $this->postJson('/api/playbook-entries', $this->entryPayload(['type' => 'competitor', 'title' => 'Rival', 'metadata' => ['name' => 'Rival']]))->assertCreated();
         $this->postJson('/api/playbook-entries', $this->entryPayload(['subject_id' => 2]))->assertCreated();
 
         $this->getJson('/api/playbook-entries?'.http_build_query([
             'owner_type' => self::OWNER, 'owner_id' => 1,
             'subject_type' => Product::class, 'subject_id' => 1,
-            'kind' => 'persona',
+            'type' => 'persona',
         ]))->assertOk()
             ->assertJsonPath('data.meta.total', 1)
             ->assertJsonPath('data.data.0.title', 'Head of DevEx');
@@ -72,7 +72,7 @@ class PlaybookEntryApiTest extends TestCase
         Event::fake([PlaybookEntryDeleted::class]);
         $id = $this->postJson('/api/playbook-entries', $this->entryPayload())->json('data.id');
 
-        $this->getJson("/api/playbook-entries/{$id}")->assertOk()->assertJsonPath('data.kind', 'persona');
+        $this->getJson("/api/playbook-entries/{$id}")->assertOk()->assertJsonPath('data.type', 'persona');
 
         // A title-only update keeps the existing fields.
         $this->putJson("/api/playbook-entries/{$id}", ['title' => 'VP Engineering'])
@@ -89,19 +89,19 @@ class PlaybookEntryApiTest extends TestCase
     public function accepting_a_suggestion_confirms_it_and_replaces_the_confirmed_single(): void
     {
         Event::fake([PlaybookEntryConfirmed::class]);
-        $this->postJson('/api/playbook-entries', $this->entryPayload(['kind' => 'icp', 'title' => 'Old ICP', 'metadata' => ['industry' => 'Legacy']]))->assertCreated();
+        $this->postJson('/api/playbook-entries', $this->entryPayload(['type' => 'icp', 'title' => 'Old ICP', 'metadata' => ['industry' => 'Legacy']]))->assertCreated();
 
         $suggestion = PlaybookEntry::create([
             'owner_type' => self::OWNER, 'owner_id' => 1,
             'subject_type' => Product::class, 'subject_id' => 1,
-            'kind' => 'icp', 'status' => 'suggested', 'title' => 'New ICP', 'metadata' => ['industry' => 'SaaS'],
+            'type' => 'icp', 'status' => 'suggested', 'title' => 'New ICP', 'metadata' => ['industry' => 'SaaS'],
         ]);
 
         $this->postJson("/api/playbook-entries/{$suggestion->id}/accept")
             ->assertOk()
             ->assertJsonPath('data.status', 'confirmed');
 
-        $confirmed = PlaybookEntry::where('kind', 'icp')->confirmed()->get();
+        $confirmed = PlaybookEntry::where('type', 'icp')->confirmed()->get();
         $this->assertCount(1, $confirmed);
         $this->assertSame('New ICP', $confirmed->first()->title);
         Event::assertDispatched(PlaybookEntryConfirmed::class);

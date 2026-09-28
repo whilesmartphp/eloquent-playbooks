@@ -21,7 +21,7 @@ All routes use `route_prefix` (default `api`) and `route_middleware` (default `a
 
 | Method | Path | Does |
 | --- | --- | --- |
-| GET | `/playbook-entries` | Paginated list; filter by `owner_type`/`owner_id`, `subject_type`/`subject_id`, `kind`, `status` |
+| GET | `/playbook-entries` | Paginated list; filter by `owner_type`/`owner_id`, `subject_type`/`subject_id`, `type`, `status` |
 | POST | `/playbook-entries` | Create a confirmed entry |
 | GET | `/playbook-entries/{id}` | Show one entry |
 | PUT/PATCH | `/playbook-entries/{id}` | Update title, body or metadata; omitted fields keep their values |
@@ -59,7 +59,7 @@ Everything is in `config/playbooks.php`:
 - `models.entry`, `requests.*`, `resources.entry`, `response_formatter`, `controller`: replace a class with a subclass or an implementation of its contract. A wrong type fails at boot with a clear error.
 - `route_groups`: turn off `entries` or `extraction`.
 - `write_middleware`: extra middleware on routes that change data.
-- `kinds`, `fields`, `qualification_frameworks`, `prompt_intro`: the playbook's shape and the line that introduces it in a prompt.
+- `types`, `fields`, `qualification_frameworks`, `prompt_intro`: the playbook's shape and the line that introduces it in a prompt.
 - `playbooks_table` and `run_migrations`: point at a table the host already owns and keep the package migration off.
 
 Listen for `PlaybookEntrySaved`, `PlaybookEntryConfirmed`, `PlaybookEntryDeleted` and `PlaybookExtractionFinished`.

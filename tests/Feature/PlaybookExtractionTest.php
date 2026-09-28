@@ -93,8 +93,8 @@ class PlaybookExtractionTest extends TestCase
 
         dispatch_sync(new ExtractPlaybook(self::OWNER, 1, Product::class, $product->id, ['https://acme.example']));
 
-        $this->assertDatabaseHas('playbook_entries', ['subject_id' => $product->id, 'kind' => 'icp', 'status' => 'suggested']);
-        $persona = PlaybookEntry::where('kind', 'persona')->first();
+        $this->assertDatabaseHas('playbook_entries', ['subject_id' => $product->id, 'type' => 'icp', 'status' => 'suggested']);
+        $persona = PlaybookEntry::where('type', 'persona')->first();
         $this->assertSame(100, $persona->metadata['_confidence']);
         $this->assertStringContainsString('About: SourceAnt (Software intelligence)', $engine->request->input);
         $this->assertSame(['prompt_tokens' => 20, 'completion_tokens' => 10], $recorded->calls[0]['usage']);
@@ -142,14 +142,14 @@ class PlaybookExtractionTest extends TestCase
             'owner_type' => self::OWNER, 'owner_id' => 1, 'subject_type' => Product::class, 'subject_id' => 1,
         ]);
         $tool = $this->app->make(PlaybookSaveTool::class);
-        $args = ['kind' => 'icp', 'title' => 'Mid-market', 'fields' => json_encode(['industry' => 'SaaS', 'colour' => 'red']), 'source_url' => 'https://acme.example'];
+        $args = ['type' => 'icp', 'title' => 'Mid-market', 'fields' => json_encode(['industry' => 'SaaS', 'colour' => 'red']), 'source_url' => 'https://acme.example'];
 
         $tool->handle($args, $context);
         $tool->handle($args, $context);
 
-        $this->assertSame(1, PlaybookEntry::where('kind', 'icp')->count());
+        $this->assertSame(1, PlaybookEntry::where('type', 'icp')->count());
         $this->assertSame(['industry' => 'SaaS', '_source_url' => 'https://acme.example'], PlaybookEntry::first()->metadata);
         $this->assertFalse($tool->authorize(new ToolContext(scope: ['owner_type' => self::OWNER])));
-        $this->assertSame("Unknown playbook kind 'horoscope'.", $tool->handle(['kind' => 'horoscope', 'title' => 'x'], $context));
+        $this->assertSame("Unknown playbook type 'horoscope'.", $tool->handle(['type' => 'horoscope', 'title' => 'x'], $context));
     }
 }

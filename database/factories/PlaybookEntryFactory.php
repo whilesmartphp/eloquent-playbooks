@@ -15,7 +15,7 @@ class PlaybookEntryFactory extends Factory
         return [
             'owner_type' => 'App\\Models\\Workspace',
             'owner_id' => 1,
-            'kind' => 'persona',
+            'type' => 'persona',
             'status' => PlaybookEntryStatus::Confirmed->value,
             'title' => $this->faker->jobTitle(),
             'metadata' => ['role' => $this->faker->jobTitle()],

@@ -31,9 +31,9 @@ class PlaybookSaveTool extends AbstractTool
     public function parameters(): array
     {
         return [
-            ParameterSpec::enum('kind', 'What this entry is.', $this->schema->kinds()),
+            ParameterSpec::enum('type', 'What this entry is.', $this->schema->types()),
             ParameterSpec::string('title', 'A short name for the entry: the persona role, the competitor name, or a label for the ICP, offer or positioning.'),
-            ParameterSpec::string('fields', 'A JSON object of this kind\'s structured fields, keyed by field name, values strings or arrays of strings. Example for a persona: {"role":"VP Engineering","pains":["flaky CI","slow onboarding"]}.'),
+            ParameterSpec::string('fields', 'A JSON object of this type\'s structured fields, keyed by field name, values strings or arrays of strings. Example for a persona: {"role":"VP Engineering","pains":["flaky CI","slow onboarding"]}.'),
             ParameterSpec::string('source_url', 'The page URL this was drawn from; the evidence.'),
             ParameterSpec::number('confidence', 'How strongly the pages support this, 0-100.', false),
         ];
@@ -51,10 +51,10 @@ class PlaybookSaveTool extends AbstractTool
 
     public function handle(array $arguments, ToolContext $context): string|array
     {
-        $kind = (string) ($arguments['kind'] ?? '');
+        $type = (string) ($arguments['type'] ?? '');
 
-        if (! $this->schema->isKind($kind)) {
-            return "Unknown playbook kind '{$kind}'.";
+        if (! $this->schema->isType($type)) {
+            return "Unknown playbook type '{$type}'.";
         }
 
         $title = trim((string) ($arguments['title'] ?? ''));
@@ -70,13 +70,13 @@ class PlaybookSaveTool extends AbstractTool
             $context->get('owner_id'),
             $context->get('subject_type'),
             $context->get('subject_id'),
-            $kind,
+            $type,
             $title,
             is_array($decoded) ? $decoded : [],
             trim((string) ($arguments['source_url'] ?? '')),
             isset($arguments['confidence']) ? (int) $arguments['confidence'] : null,
         );
 
-        return ['saved' => true, 'entry_id' => $entry->getKey(), 'kind' => $kind, 'status' => $entry->status->value];
+        return ['saved' => true, 'entry_id' => $entry->getKey(), 'type' => $type, 'status' => $entry->status->value];
     }
 }

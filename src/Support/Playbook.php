@@ -32,7 +32,7 @@ class Playbook
         return $this->model()::query()
             ->forOwner($ownerType, $ownerId)
             ->forSubject($subjectType, $subjectId)
-            ->whereIn('kind', $this->schema->kinds());
+            ->whereIn('type', $this->schema->types());
     }
 
     public function queryFor(Model $owner, ?Model $subject = null): Builder
@@ -41,7 +41,7 @@ class Playbook
     }
 
     /**
-     * Confirmed entries filling the kind slots, plus the suggestions awaiting review.
+     * Confirmed entries filling the type slots, plus the suggestions awaiting review.
      *
      * @return array<string, mixed>
      */
@@ -59,8 +59,8 @@ class Playbook
         $all = $this->group($this->queryFor($owner, $subject)->confirmed()->get());
         $sections = [];
 
-        foreach ($this->headings() as $kind => $heading) {
-            $value = $all[$kind] ?? null;
+        foreach ($this->headings() as $type => $heading) {
+            $value = $all[$type] ?? null;
             $entries = is_array($value) ? $value : array_filter([$value]);
 
             if ($entries === []) {
@@ -105,7 +105,7 @@ class Playbook
     public function render(PlaybookEntry $entry): string
     {
         $title = trim((string) $entry->title);
-        $head = $title !== '' ? $title : ucfirst((string) $entry->kind);
+        $head = $title !== '' ? $title : ucfirst((string) $entry->type);
         $parts = [];
 
         foreach ((array) $entry->metadata as $key => $value) {
@@ -126,7 +126,7 @@ class Playbook
         return $parts === [] ? "- {$head}" : "- {$head}\n".implode("\n", $parts);
     }
 
-    /** Confirms an entry; for a single kind this retires the subject's other confirmed entries. */
+    /** Confirms an entry; for a single type this retires the subject's other confirmed entries. */
     public function confirm(PlaybookEntry $entry): PlaybookEntry
     {
         $entry->status = PlaybookEntryStatus::Confirmed;
@@ -146,8 +146,8 @@ class Playbook
     public function saveConfirmed(PlaybookEntry $entry, array $attributes): PlaybookEntry
     {
         $created = ! $entry->exists;
-        $entry->fill(array_intersect_key($attributes, array_flip(['owner_type', 'owner_id', 'subject_type', 'subject_id', 'kind', 'title'])));
-        $entry->metadata = $this->schema->filter((string) $entry->kind, (array) ($attributes['metadata'] ?? []));
+        $entry->fill(array_intersect_key($attributes, array_flip(['owner_type', 'owner_id', 'subject_type', 'subject_id', 'type', 'title'])));
+        $entry->metadata = $this->schema->filter((string) $entry->type, (array) ($attributes['metadata'] ?? []));
         $entry->body = ($attributes['body'] ?? null) ?: $this->render($entry);
         $entry->status = PlaybookEntryStatus::Confirmed;
         $entry->save();
@@ -159,7 +159,7 @@ class Playbook
     }
 
     /**
-     * Saves or refreshes a drafted suggestion, matched on kind (and title for collection kinds).
+     * Saves or refreshes a drafted suggestion, matched on type (and title for collection types).
      *
      * @param  array<string, mixed>  $fields
      */
@@ -168,13 +168,13 @@ class Playbook
         mixed $ownerId,
         ?string $subjectType,
         mixed $subjectId,
-        string $kind,
+        string $type,
         string $title,
         array $fields,
         ?string $sourceUrl = null,
         ?int $confidence = null,
     ): PlaybookEntry {
-        $metadata = $this->schema->filter($kind, $fields);
+        $metadata = $this->schema->filter($type, $fields);
 
         if ($sourceUrl !== null && $sourceUrl !== '') {
             $metadata['_source_url'] = $sourceUrl;
@@ -189,11 +189,11 @@ class Playbook
             'owner_id' => $ownerId,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
-            'kind' => $kind,
+            'type' => $type,
             'status' => PlaybookEntryStatus::Suggested->value,
         ];
 
-        $match = $this->schema->isSingle($kind) ? $scope : $scope + ['title' => $title];
+        $match = $this->schema->isSingle($type) ? $scope : $scope + ['title' => $title];
 
         /** @var PlaybookEntry $entry */
         $entry = $this->model()::withTrashed()->firstOrNew($match);
@@ -212,14 +212,14 @@ class Playbook
 
     private function retireOtherSingles(PlaybookEntry $entry): void
     {
-        if (! $this->schema->isSingle((string) $entry->kind)) {
+        if (! $this->schema->isSingle((string) $entry->type)) {
             return;
         }
 
         $this->model()::query()
             ->forOwner((string) $entry->owner_type, $entry->owner_id)
             ->forSubject($entry->subject_type, $entry->subject_id)
-            ->where('kind', $entry->kind)
+            ->where('type', $entry->type)
             ->confirmed()
             ->whereKeyNot($entry->getKey())
             ->get()
@@ -232,22 +232,22 @@ class Playbook
      */
     private function group(Collection $rows): array
     {
-        $byKind = $rows->groupBy('kind');
+        $byType = $rows->groupBy('type');
         $out = [];
 
-        foreach ($this->schema->single() as $kind) {
-            $out[$kind] = $byKind->get($kind)?->first();
+        foreach ($this->schema->single() as $type) {
+            $out[$type] = $byType->get($type)?->first();
         }
 
-        foreach ($this->schema->many() as $kind) {
-            $out[$kind] = ($byKind->get($kind) ?? collect())->values()->all();
+        foreach ($this->schema->many() as $type) {
+            $out[$type] = ($byType->get($type) ?? collect())->values()->all();
         }
 
         return $out;
     }
 
     /**
-     * The kinds that ground a prompt, in reading order.
+     * The types that ground a prompt, in reading order.
      *
      * @return array<string, string>
      */

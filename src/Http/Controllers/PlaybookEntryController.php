@@ -38,13 +38,13 @@ class PlaybookEntryController extends Controller
             $query->forSubject((string) $request->input('subject_type'), $request->input('subject_id'));
         }
 
-        foreach (['kind', 'status'] as $filter) {
+        foreach (['type', 'status'] as $filter) {
             if ($request->filled($filter)) {
                 $query->where($filter, $request->input($filter));
             }
         }
 
-        $entries = $query->orderBy('kind')->orderByDesc('updated_at')
+        $entries = $query->orderBy('type')->orderByDesc('updated_at')
             ->paginate((int) $request->input('per_page', 50));
 
         return $this->responses->success($this->resourceClass()::collection($entries)->response()->getData(true));
